@@ -1,8 +1,8 @@
 const canvas = document.querySelector('canvas')
 const context = canvas.getContext('2d')
 
-canvas.width = window.innerWidth
-canvas.height = window.innerHeight
+canvas.width = 1024
+canvas.height = 576
 
 const gravity = 1.5
 class Player {
@@ -38,28 +38,60 @@ class Player {
 }
 
 class Platform {
-	constructor({x, y}){
+	constructor({x, y, image}){
 		this.position = {
 			x,
 			y
 		}
-
-		this.width = 200
-		this.height = 20
+		this.image = image
+		this.width = image.width
+		this.height = image.height
 	}
 
 	draw() {
-		context.fillStyle = 'blue'
-		context.fillRect(this.position.x, this.position.y, this.width, this.height)
-
+		context.drawImage(this.image, this.position.x, this.position.y)
 	}
 
 }
 
+class GenericObject {
+	constructor({x, y, image}){
+		this.position = {
+			x,
+			y
+		}
+		this.image = image
+		this.width = image.width
+		this.height = image.height
+	}
+
+	draw() {
+		context.drawImage(this.image, this.position.x, this.position.y)
+	}
+
+}
+
+let platform = '/img/platform.png'
+let background = '/img/background.png'
+let hills = '/img/hills.png'
+
+function createImage(imageSrc){
+	const image = new Image()
+	image.src = imageSrc
+	console.log(image.src)
+	return image
+}
+
 const player = new Player()
+
+const platformImage = createImage(platform)
 const platforms = [
-	new Platform({x: 300, y: 400}),
-	new Platform({x: 700, y: 450})
+	new Platform({x: -1, y: 460, image: platformImage}),
+	new Platform({x: platformImage.width-4, y: 460, image: platformImage})
+]
+const genericObject = [
+	new GenericObject({x: -1, y: -1, image: createImage(background)}),
+	new GenericObject({x: -1, y: -1, image: createImage(hills)})
 ]
 
 const keys = {
@@ -75,11 +107,17 @@ let scrollOffset = 0
 
 function animate(){
 	requestAnimationFrame(animate)
-	context.clearRect(0,0,canvas.width,canvas.height)
-	player.update()
+	context.fillStyle = 'white'
+	context.fillRect(0,0,canvas.width,canvas.height)
+	
+	genericObject.forEach(genericObject =>{
+		genericObject.draw()
+	})
+
 	platforms.forEach(platform => {
 		platform.draw()
 	})
+	player.update()
 	
 	if (keys.right.pressed && player.position.x < 400) {
 		player.velocity.x = 5
