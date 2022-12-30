@@ -63,8 +63,8 @@ class Player {
 			this.velocity.y <= canvas.height)
 			this.velocity.y += gravity
 		//else this.velocity.y = 0
-		console.log("x",scrollOffset)
-		console.log("y",this.position.y)
+		//console.log("x",scrollOffset)
+		//console.log("y",this.position.y)
 	}
 }
 
@@ -113,41 +113,14 @@ class Enemy {
 
 	update() {
 		this.frames++
-		if(this.frames > 60) this.frames = 0
+		if(this.frames > 1) this.frames = 0
 		this.draw()
 		this.position.x += this.velocity.x
 		this.position.y += this.velocity.y
-
-		console.log("blahaj")
+		//console.log("blahaj")
 	}
 }
 
-class Blahaj {
-	constructor(x, y) {
-		this.position = {
-			x,
-			y		
-		}
-		this.image = createImage(blahajSprite)
-	}
-
-	
-	draw() {
-		context.drawImage(
-			this.image,
-			this.currentCropWidth*this.frames,
-			0,
-			this.currentCropWidth,
-			0,
-			this.position.x,
-			this.position.y,
-			this.width,
-			this.height
-		)
-		//console.log("blahaj-draw")
-
-	}
-}
 
 class Platform {
 	constructor({x, y, image}){
@@ -202,7 +175,6 @@ let enemyRunRight = '/img/enemyRunRight.png'
 function createImage(imageSrc){
 	const image = new Image()
 	image.src = imageSrc
-	console.log(image.src)
 	return image
 }
 
@@ -218,10 +190,9 @@ let enemyRunRightImage = createImage(enemyRunRight)
 let platforms = []
 let genericObjects = []
 let enemies = []
-let blahaj = new Blahaj({x: 150, y : 130})
 
 let keys = {
-	left: {
+	right: {
 		pressed: false
 	},
 	left: {
@@ -232,7 +203,7 @@ let keys = {
 let scrollOffset = 0
 let shownLoseAlert = false
 let shownWinAlert = false
-let blahajCollected = false
+let blahajCollected = true
 
 function init(){
 player = new Player()
@@ -269,9 +240,9 @@ platforms = [
 	new Platform({x: platformImage.width * 18, y: 410, image: platformSmallTallImage}),
 	new Platform({x: platformImage.width * 18 + 200, y: 510, image: platformSmallTallImage}),
 	new Platform({x: platformImage.width * 19 - 90, y: 310, image: platformSmallShortImage}),
-	new Platform({x: platformImage.width * 20 + 150, y: 290, image: platformSmallTallImage}),
-	new Platform({x: platformImage.width * 20 , y: 350, image: platformSmallTallImage}),
-	new Platform({x: platformImage.width * 20 + platformSmallTallImage.width - 2, y: 350, image: platformSmallTallImage}),
+	new Platform({x: platformImage.width * 20 + 150, y: 290, image: platformSmallShortImage}),
+	new Platform({x: platformImage.width * 20 , y: 350, image: platformSmallShortImage}),
+	new Platform({x: platformImage.width * 20 + platformSmallTallImage.width - 31, y: 350, image: platformSmallShortImage}),
 	new Platform({x: platformImage.width * 19 + 480, y: 410, image: platformSmallShortImage}),
 	//blahaj collected
 	new Platform({x: platformImage.width * 21 - 1, y: 550, image: platformImage}),
@@ -290,16 +261,32 @@ platforms = [
 	new Platform({x: platformImage.width * 28 - 150, y: 325, image: platformSmallShortImage}),
 	new Platform({x: platformImage.width * 29 - 150, y: 325, image: platformSmallShortImage}),
 	new Platform({x: platformImage.width * 29, y: 325, image: platformSmallShortImage}),
+	new Platform({x: platformImage.width * 29 - 50, y: 325, image: platformSmallShortImage}),
+
 	new Platform({x: platformImage.width * 30 - 100, y: 210, image: platformSmallShortImage}),
 	new Platform({x: platformImage.width * 30 - 100, y: 510, image: platformImage}),
-
+	new Platform({x: platformImage.width * 31, y: 410, image: platformSmallTallImage}),
+	new Platform({x: platformImage.width * 32 - 200, y: 310, image: platformSmallShortImage}),
+	new Platform({x: platformImage.width * 32 - 100, y: 520, image: platformImage}),
+	new Platform({x: platformImage.width * 32 + 350, y: 310, image: platformSmallShortImage}),
+	new Platform({x: platformImage.width * 33 + 100, y: 410, image: platformSmallShortImage}),
+	new Platform({x: platformImage.width * 34 - 100, y: 510, image: platformSmallShortImage}),
+	new Platform({x: platformImage.width * 34 + 20, y: 290, image: platformSmallShortImage}),
+	new Platform({x: platformImage.width * 35 + 50, y: 520, image: platformImage}),
+	new Platform({x: platformImage.width * 35 + 250, y: 390, image: platformSmallShortImage}),
+	new Platform({x: platformImage.width * 36 + 100, y: 265, image: platformSmallShortImage}),
+	new Platform({x: platformImage.width * 36 + 300, y: 515, image: platformSmallShortImage}),
+	new Platform({x: platformImage.width * 37 + 110, y: 265, image: platformSmallShortImage}),
+	new Platform({x: platformImage.width * 38 + 220, y: 520, image: platformImage}),
+	new Platform({x: platformImage.width * 39 + 220, y: 520, image: platformImage}),
+	new Platform({x: platformImage.width * 40 + 220, y: 520, image: platformImage}),
+	//blahaj collectible
 	new Platform({x: platformImage.width * 20 + 250, y: 130, image: createImage(blahajSprite)}),
 ]
 genericObjects = [
 	new GenericObject({x: -1, y: -1, image: createImage(background)}),
 	new GenericObject({x: -1, y: -1, image: createImage(hills)})
 ]
-
 keys = {
 	right: {
 		pressed: false
@@ -312,15 +299,28 @@ keys = {
 scrollOffset = 0
 shownLoseAlert = false
 shownWinAlert = false
-blahajCollected = false
+
+if (blahajCollected == true) {
+	scrollOffset = 11750
+	platforms.forEach((Platform) => {
+		Platform.position.x -= scrollOffset
+	})
+	enemies.forEach((Enemy) => {
+		Enemy.position.x -= scrollOffset
+	})		
+	genericObjects[0].position.x -=scrollOffset * 0.5
+	genericObjects[1].position.x -=scrollOffset * 0.66
+	//player.position.x = 11500
+	player.position.y = 10
+	platforms.pop()
+	//platforms.push(new Platform({x: player.position.x - 100, y: player.position.x - 100, image: createImage(blahajSprite)}))
+	}
 }
 
 function animate(){
 	requestAnimationFrame(animate)
 	context.fillStyle = 'white'
 	context.fillRect(0,0,canvas.width,canvas.height)
-	//console.log("x",player.position.x)
-	//console.log("y",player.position.y)
 	
 	genericObjects.forEach(GenericObject =>{
 		GenericObject.draw()
@@ -332,7 +332,6 @@ function animate(){
 		Enemy.update()
 	})
 	player.update()
-	blahaj.draw()
 	
 	if (keys.right.pressed && player.position.x < 400) {
 		player.velocity.x = player.speed
@@ -374,17 +373,14 @@ function animate(){
 	})
 
 	
-	//player.position.x =
 	if (scrollOffset > 11400
 		&& (player.position.y > 120 && player.position.y < 300)
 		&& blahajCollected == false){
 		blahajCollected = true
+		console.log("blahaj collected")
 		platforms.pop()
 	}
-	if (blahajCollected == true) {
-		scrollOffset = 11400
-		player.position.y = 110
-	}
+	
 	//win condition
 	if (scrollOffset > winReq
 		&& shownWinAlert == false) {
@@ -417,7 +413,7 @@ window.addEventListener('keydown', ({key}) => {
 			break
 
 		case 's':
-			if (player.position.y < 360) player.velocity.y += gravity
+			if (player.position.y < 360) player.velocity.y += gravity + 2
 			break
 
 		case 'd':
@@ -432,7 +428,7 @@ window.addEventListener('keydown', ({key}) => {
 			if (now - lastPressed < 0) player.velocity.y = 0
 			else {
 			if (event.repeat) { return }
-			player.velocity.y -= 20
+			player.velocity.y -= 21
 			lastPressed = new Date()
 			}
 			break
