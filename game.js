@@ -67,6 +67,23 @@ class Player {
 	}
 }
 
+class InterfaceLife {
+	constructor({x, y, image}){
+		this.position = {
+			x,
+			y
+		}
+		this.image = image
+		this.width = image.width
+		this.height = image.height
+	}
+
+	draw() {
+		context.drawImage(this.image, this.position.x, this.position.y)
+	}
+
+}
+
 class Powerup {
 	constructor({x, y, image}){
 		this.position = {
@@ -107,7 +124,6 @@ class Enemy {
 
 		this.currentSprite = this.sprites.left
 		this.currentCropWidth = 225
-
 		this.lives = 1
 	}
 
@@ -183,10 +199,13 @@ let spriteStandLeft = '/img/spriteStandLeft.png'
 let spriteStandRight = '/img/spriteStandRight.png'
 let mom1 = '/img/mom1.png'
 let mom2 = '/img/mom2.png'
+let lives = '/img/heart.png'
 let powerupSprite = '/img/powerupSprite.png'
 let blahajSprite = '/img/blahajSprite.png'
 let speechBubble1 = '/img/speechBubble1.png'
 let speechBubble2 = '/img/speechBubble2.png'
+let speechBubble3 = '/img/speechBubble3.png'
+
 
 
 let enemyRunLeft = '/img/enemyRunLeft.png'
@@ -198,9 +217,15 @@ function createImage(imageSrc){
 	return image
 }
 
-function deathAnimPlayer(x, y){
+function livesUpdate(){
+	let xvalue= 30
+	let yvalue=30
+	for (let i=0; i<player.lives; i++){
+			interfaceLives.push(new InterfaceLife({x:xvalue,y:yvalue,image:livesImage}))
+			xvalue+= 52
+		}
 	
-}
+	}
 
 let player = new Player()
 
@@ -211,6 +236,9 @@ let platformSmallShortImage = createImage(platformSmallShort)
 let enemyRunLeftImage = createImage(enemyRunLeft)
 let enemyRunRightImage = createImage(enemyRunRight)
 
+let livesImage= createImage(lives)
+
+let interfaceLives=[]
 let powerups = []
 let platforms = []
 let genericObjects = []
@@ -229,17 +257,39 @@ let keys = {
 let scrollOffset = 0
 let shownLoseAlert = false
 let shownWinAlert = false
-let blahajCollected = true
+let blahajCollected = false
+//let blahajCollected = true
 
 function init(){ //<================================================ INIT
 player = new Player()
 
+
 powerups = [
-	new Powerup({x: platformImage.width * 13 - 160, y: 70,image: createImage(powerupSprite)})
+	new Powerup({x: platformImage.width * 13 - 160, y: 70 ,image: createImage(powerupSprite)}),
+	new Powerup({x: platformImage.width * 25 + 250, y: 0 ,image: createImage(powerupSprite)}),
+	new Powerup({x: platformImage.width * 17 - 380, y: 140 - powerupSprite.height ,image: createImage(powerupSprite)})	
 ]
 
 enemies = []
 enemies.push(new Enemy(1500,50))
+enemies.push(new Enemy(platformImage.width * 4 + 550,50))
+enemies.push(new Enemy(platformImage.width * 9 + 10,50))
+enemies.push(new Enemy(platformImage.width * 10 + 10,50))
+enemies.push(new Enemy(platformImage.width * 14,50))
+enemies.push(new Enemy(platformImage.width * 13,50))
+enemies.push(new Enemy(platformImage.width * 16 + 50,270))
+enemies.push(new Enemy(platformImage.width * 21 + 10,50))
+enemies.push(new Enemy(platformImage.width * 26 - 100,20))
+enemies.push(new Enemy(platformImage.width * 31 + 10,20))
+enemies.push(new Enemy(platformImage.width * 35 + 70,270))
+
+
+
+
+
+
+
+livesUpdate()
 
 platforms = [
 	new Platform({x: 360, y: 173, image: createImage(mom1)}),
@@ -318,7 +368,9 @@ genericObjects = [
 ]
 speechBubbles = [
 	new Platform({x: 190, y: 18, image: createImage(speechBubble1)}),
-	new Platform({x: platformImage.width * 39 + 50, y: 18, image: createImage(speechBubble2)})
+	new Platform({x: platformImage.width * 39 + 200, y: 18, image: createImage(speechBubble2)}),
+	new Platform({x: platformImage.width * 12, y: 90, image: createImage(speechBubble3)})
+
 
 ]
 keys = {
@@ -344,10 +396,8 @@ if (blahajCollected == true) {
 	})		
 	genericObjects[0].position.x -=scrollOffset * 0.5
 	genericObjects[1].position.x -=scrollOffset * 0.66
-	//player.position.x = 11500
 	player.position.y = 10
 	platforms.pop()
-	//platforms.push(new Platform({x: player.position.x - 100, y: player.position.x - 100, image: createImage(blahajSprite)}))
 	}
 }
 
@@ -366,11 +416,18 @@ function animate(){
 		Powerup.draw()
 	})
 	enemies.forEach(Enemy => {
+		if (Enemy.velocity.x > 0) Enemy.image = Enemy.sprites.right
+		else if (Enemy.velocity.x < 0)Enemy.image = Enemy.sprites.left
 		Enemy.update()
 	})
+	interfaceLives.forEach(live =>[
+		live.draw()
+	])
 	if(scrollOffset>0 && scrollOffset<280) speechBubbles[0].draw()
-	if(scrollOffset>22450) speechBubbles[1].draw()
-	console.log("so",scrollOffset)
+	if(scrollOffset>22440) speechBubbles[1].draw()
+	if(scrollOffset>=6440 && scrollOffset<6660) speechBubbles[2].draw()
+	console.log("lives",player.lives)
+	
 	player.update()
 	
 	if (keys.right.pressed && player.position.x < 400) {
@@ -421,7 +478,8 @@ function animate(){
 		if (player.position.y + player.height <= platform.position.y &&
 			player.position.y + player.height + player.velocity.y >= platform.position.y &&
 			player.position.x + player.width-40 >= platform.position.x &&
-			player.position.x <= platform.position.x + platform.width - 15
+			player.position.x <= platform.position.x + platform.width - 15 &&
+			player.lives > 0
 			) {
 			player.velocity.y = 0
 		}
@@ -436,11 +494,16 @@ function animate(){
 				let index = enemies.indexOf(enemy)
 				enemies.splice(index,1)
 		} else if (
-			player.position.x + player.width >= enemy.position.x &&
-			player.position.x <= enemy.position.x + (enemy.width/2)&&
+			player.position.x + player.width-35  >= enemy.position.x &&
+			player.position.x <= enemy.position.x + enemy.width &&
 			player.position.y+player.height < enemy.position.y+enemy.height &&
 			player.position.y+player.height > enemy.position.y) {
+				player.velocity.y -= 10
+				if(player.currentSprite == player.sprites.stand.right || player.currentSprite == player.sprites.run.right) player.velocity.x -= 50
+				else if (player.currentSprite == player.sprites.stand.left || player.currentSprite == player.sprites.run.left) player.velocity.x += 50				
 				player.lives--
+				interfaceLives.pop(0,1)
+				if (player.lives == 0) return
 		}
 	})
 	// platform enemy collision detection
@@ -452,6 +515,12 @@ function animate(){
 				enemy.position.x <= platform.position.x + platform.width
 				) {
 				enemy.velocity.y = 0
+			}
+			if (enemy.position.x  + enemy.width == platform.position.x + platform.width 
+                || enemy.position.x == platform.position.x
+				) {
+					console.log("edge")
+					enemy.velocity.x = (enemy.velocity.x) *-1
 			}
 			
 		})
@@ -465,6 +534,7 @@ function animate(){
 				let index = powerups.indexOf(Powerup)
 				powerups.splice(index,1)
 				player.lives++
+				livesUpdate()
 			}
 	})
 	
@@ -486,14 +556,10 @@ function animate(){
 
 	//lose condition
 	if (player.lives == 0){
-		keys.left.pressed = false
-		keys.right.pressed = false
-		player.velocity.x = 0
-		player.velocity.y += 20
-		player.velocity.y += gravity + 2
+		player.velocity.x -= player.velocity.x
+		//player.velocity.y -= 50
 	}
 	if ((player.position.y - 3*player.height > canvas.height)
-		//|| player.lives == 0)
 		&& shownLoseAlert==false) {
 		alert("You lose!")
 		shownLoseAlert = true
